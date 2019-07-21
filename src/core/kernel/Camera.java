@@ -4,15 +4,6 @@ import core.math.Matrix4f;
 import core.math.Quaternion;
 import core.math.Vec3f;
 import core.utils.Constants;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
-import static org.lwjgl.glfw.GLFW.glfwSetCursorPos;
 
 public class Camera {
 	
@@ -25,8 +16,6 @@ public class Camera {
 	private Vec3f forward;
 	private Vec3f previousForward;
 	private Vec3f up;
-	private float movAmt = 0.01f;
-	private float rotAmt = 0.8f;
 	private Matrix4f viewMatrix;
 	private Matrix4f projectionMatrix;
 	private Matrix4f viewProjectionMatrix;
@@ -38,16 +27,6 @@ public class Camera {
 	private float width;
 	private float height;
 	private float fovY;
-
-	private float rotYstride;
-	private float rotYamt;
-	private float rotYcounter;
-	private boolean rotYInitiated = false;
-	private float rotXstride;
-	private float rotXamt;
-	private float rotXcounter;
-	private boolean rotXInitiated = false;
-	private float mouseSensitivity = 0.8f;
 	
 	private Quaternion[] frustumPlanes = new Quaternion[6];
 	private Vec3f[] frustumCorners = new Vec3f[8];
@@ -85,110 +64,6 @@ public class Camera {
 	{
 		setPreviousPosition(new Vec3f(position));
 		setPreviousForward(new Vec3f(forward));
-		cameraMoved = false;
-		cameraRotated = false;
-		
-		movAmt += (0.04f * Input.getInstance().getScrollOffset());
-		movAmt = Math.max(0.02f, movAmt);
-		
-		if(Input.getInstance().isKeyHold(GLFW_KEY_W))
-			move(getForward(), movAmt);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_S))
-			move(getForward(), -movAmt);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_A))
-			move(getLeft(), movAmt);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_D))
-			move(getRight(), movAmt);
-				
-		if(Input.getInstance().isKeyHold(GLFW_KEY_UP))
-			rotateX(-rotAmt/8f);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_DOWN))
-			rotateX(rotAmt/8f);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_LEFT))
-			rotateY(-rotAmt/8f);
-		if(Input.getInstance().isKeyHold(GLFW_KEY_RIGHT))
-			rotateY(rotAmt/8f);
-		
-		// free mouse rotation
-		if(Input.getInstance().isButtonHolding(2))
-		{
-			float dy = Input.getInstance().getLockedCursorPosition().getY() - Input.getInstance().getCursorPosition().getY();
-			float dx = Input.getInstance().getLockedCursorPosition().getX() - Input.getInstance().getCursorPosition().getX();
-			
-			// y-axxis rotation
-			
-			if (dy != 0){
-				rotYstride = Math.abs(dy * 0.01f);
-				rotYamt = -dy;
-				rotYcounter = 0;
-				rotYInitiated = true;
-			}
-			
-			if (rotYInitiated ){
-				
-				// up-rotation
-				if (rotYamt < 0){
-					if (rotYcounter > rotYamt){
-						rotateX(-rotYstride * mouseSensitivity);
-						rotYcounter -= rotYstride;
-						rotYstride *= 0.98;
-					}
-					else rotYInitiated = false;
-				}
-				// down-rotation
-				else if (rotYamt > 0){
-					if (rotYcounter < rotYamt){
-						rotateX(rotYstride * mouseSensitivity);
-						rotYcounter += rotYstride;
-						rotYstride *= 0.98;
-					}
-					else rotYInitiated = false;
-				}
-			}
-			
-			// x-axxis rotation
-			if (dx != 0){
-				rotXstride = Math.abs(dx * 0.01f);
-				rotXamt = dx;
-				rotXcounter = 0;
-				rotXInitiated = true;
-			}
-			
-			if (rotXInitiated){
-				
-				// up-rotation
-				if (rotXamt < 0){
-					if (rotXcounter > rotXamt){
-						rotateY(rotXstride * mouseSensitivity);
-						rotXcounter -= rotXstride;
-						rotXstride *= 0.96;
-					}
-					else rotXInitiated = false;
-				}
-				// down-rotation
-				else if (rotXamt > 0){
-					if (rotXcounter < rotXamt){
-						rotateY(-rotXstride * mouseSensitivity);
-						rotXcounter += rotXstride;
-						rotXstride *= 0.96;
-					}
-					else rotXInitiated = false;
-				}
-			}
-			
-			glfwSetCursorPos(Window.getInstance().getWindow(),
-					 Input.getInstance().getLockedCursorPosition().getX(),
-					 Input.getInstance().getLockedCursorPosition().getY());
-		}
-		
-		if (!position.equals(previousPosition)){
-			cameraMoved = true;	
-		}
-		
-		if (!forward.equals(previousForward)){
-			cameraRotated = true;
-		}
-		
 		setPreviousViewMatrix(viewMatrix);
 		setPreviousViewProjectionMatrix(viewProjectionMatrix);
 		setViewMatrix(new Matrix4f().View(this.getForward(), this.getUp()).mul(
