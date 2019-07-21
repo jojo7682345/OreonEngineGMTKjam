@@ -1,0 +1,5 @@
+#handwritten mtl by jojo7682345
+newmtl White
+Ns 1
+map_Kd white.png
+illum 0
