@@ -16,35 +16,8 @@ public class SceneLoader {
 	private static boolean			finished;
 
 	public static void loadScene(String string) {
-		Thread thread = new Thread(() -> {
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(new File("./res/scenes/" + string)));
-				String line;
-				while ((line = reader.readLine()) != null) {
-					String[] data = line.split("/");
-					GameObject object = (GameObject) (Class.forName(data[0]).newInstance());
-					object.setWorldTransform(Transform.fromString(data[1]));
-					object.setLocalTransform(Transform.fromString(data[2]));
-					object.setName(data[3]);
-					loadedObjects.add(object);
-				}
-
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-
-				e.printStackTrace();
-			}
-			finished = true;
-		});
-		thread.start();
+		loadScene(new File("./res/scenes/" + string));
+			
 	}
 
 	public static void loadObject(GameObject o) {
@@ -62,6 +35,9 @@ public class SceneLoader {
 				BufferedReader reader = new BufferedReader(new FileReader(file));
 				String line;
 				while ((line = reader.readLine()) != null) {
+					if(line.startsWith("#")) {
+						continue;
+					}
 					String[] data = line.split("/");
 					GameObject object = (GameObject) (Class.forName(data[0]).newInstance());
 					object.setWorldTransform(Transform.fromString(data[1]));

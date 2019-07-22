@@ -1,5 +1,7 @@
 package modules.shaders;
 
+import org.lwjgl.opengl.GL13;
+
 import core.model.Material;
 import core.renderer.ModelRenderer;
 import core.scene.GameObject;
@@ -27,16 +29,20 @@ public class DefaultModelShader extends Shader {
 		addUniform("alpha");
 		addUniform("color");
 		addUniform("specularFactor");
-		// addUniform("tex");
+		//addUniform("tex");
 	}
 
 	@Override public void updateUniforms(GameObject object) {
 		setUniform("modelViewProjectionMatrix", object.getWorldTransform().getModelViewProjectionMatrix());
 		if (object.hasComponent(Constants.MODEL_COMPONENT)) {
-			// glActiveTexture(GL_TEXTURE0);
-			// ((ModelRenderer)object.getComponent(Constants.MODEL_COMPONENT)).getModel().getMaterial().getDiffusemap().bind();
 			ModelRenderer renderer = ((ModelRenderer) object.getComponent(Constants.MODEL_COMPONENT));
 			if (renderer.getModel().getMaterial() != null) {
+				if(renderer.getModel().getMaterial().getDiffusemap()!=null) {
+					GL13.glActiveTexture(GL13.GL_TEXTURE0);
+					System.out.println("this");
+					renderer.getModel().getMaterial().getDiffusemap().bind();
+					setUniformi("tex", 0);
+				}
 				setUniformf("alpha", renderer.getModel().getMaterial().getAlpha());
 				setUniform("color", renderer.getModel().getMaterial().getColor());
 				setUniformf("specularFactor", renderer.getModel().getMaterial().getShininess());

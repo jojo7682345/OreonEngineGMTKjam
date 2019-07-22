@@ -26,6 +26,8 @@ public class Window {
 
 	private static Window instance = null;
 
+	public static boolean is3D = true;
+	
 	private long window;
 	private int width;
 	private int height;
@@ -41,7 +43,7 @@ public class Window {
 	
 	public void init(){}
 	
-	public void create(int width, int height)
+	public void create(int width, int height, boolean is3D)
 	{
 		setWidth(width);
 		setHeight(height);
@@ -55,7 +57,7 @@ public class Window {
 		if(window == 0) {
 		    throw new RuntimeException("Failed to create window");
 		}
-		
+		Window.is3D = is3D;
 		glfwMakeContextCurrent(window);
 		GL.createCapabilities();
 		glfwShowWindow(window);
