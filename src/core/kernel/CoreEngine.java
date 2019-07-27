@@ -20,144 +20,134 @@ import core.scene.GameObject;
 
 /**
  * 
- * @author oreon3D
- * CoreEngine implements the game loop and manages window close requests.
- * On close request the CoreEngine ensures a clean shutdown of the
- * RenderingEngine and modules.
+ * @author oreon3D CoreEngine implements the game loop and manages window close
+ *         requests. On close request the CoreEngine ensures a clean shutdown of
+ *         the RenderingEngine and modules.
  *
  */
 public class CoreEngine {
 
-	private static int fps;
-	private static float framerate = 200;
-	private static float frameTime = 1.0f/framerate;
-	private boolean isRunning;
-	private RenderingEngine renderingEngine;
-	
-	@SuppressWarnings("unused")
-	private GLFWErrorCallback errorCallback;
-	
-	public void createWindow(int width, int height, boolean is3D)
-	{
+	private static int		fps;
+	private static float	framerate	= 2000;
+	private static float	frameTime	= 1.0f / framerate;
+	private boolean			isRunning;
+	private RenderingEngine	renderingEngine;
+
+	public static double deltaTime = 0;
+
+	@SuppressWarnings("unused") private GLFWErrorCallback errorCallback;
+
+	public void createWindow(int width, int height, boolean is3D) {
 		glfwInit();
-		
+
 		glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
-		
-		Window.getInstance().create(width, height,is3D);
-		
+
+		Window.getInstance().create(width, height, is3D);
+
 		renderingEngine = new RenderingEngine();
-		
+
 		getDeviceProperties();
 	}
-	
-	public void init()
-	{
+
+	public void init() {
 		core.configs.Default.init();
 		renderingEngine.init();
 	}
-	
-	public void start()
-	{
-		if(isRunning)
+
+	public void start() {
+		if (isRunning)
 			return;
-		
+
 		run();
 	}
 
 	public void run() {
-		
+
 		this.isRunning = true;
-		
+
 		int frames = 0;
 		long frameCounter = 0;
-		
+
 		long lastTime = System.nanoTime();
 		double unprocessedTime = 0;
-		
+
 		// Rendering Loop
-		while(isRunning)
-		{
+		while (isRunning) {
 			boolean render = false;
-			
+
 			long startTime = System.nanoTime();
 			long passedTime = startTime - lastTime;
 			lastTime = startTime;
-			
+
 			unprocessedTime += passedTime / (double) Constants.NANOSECOND;
 			frameCounter += passedTime;
-		
-			
-			while(unprocessedTime > frameTime)
-			{
+			long frameStart = System.nanoTime();
+
+			while (unprocessedTime > frameTime) {
 
 				render = true;
 				unprocessedTime -= frameTime;
-				
-				if(Window.getInstance().isCloseRequested())
+
+				if (Window.getInstance().isCloseRequested()) {
 					stop();
+				}
 				
 				update();
-				
-				if(frameCounter >= Constants.NANOSECOND)
-				{
+
+				if (frameCounter >= Constants.NANOSECOND) {
 					setFps(frames);
 					frames = 0;
 					frameCounter = 0;
 				}
-			}
-			if(render)
-			{
+				
+			}deltaTime = (System.nanoTime()-frameStart) / 1000;
+			if (render) {
 				render();
 				frames++;
-			}
-			else
-			{
+			} else {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}		
+			}
 		}
-		
-		cleanUp();	
+
+		cleanUp();
 	}
 
-	public void stop()
-	{
-		if(!isRunning)
+	public void stop() {
+		if (!isRunning)
 			return;
-		
+
 		isRunning = false;
 	}
-	
-	private void render(){
+
+	private void render() {
 		renderingEngine.render();
 	}
-	
-	private void update()
-	{
+
+	private void update() {
 		Input.getInstance().update();
 		Camera.getInstance().update();
 		renderingEngine.update();
 		SceneLoader.update(this);
 	}
-	
-	private void cleanUp()
-	{
+
+	private void cleanUp() {
 		renderingEngine.clearRenderingQueue();
 		Window.getInstance().dispose();
 		glfwTerminate();
 		System.exit(0);
 	}
-	
-	private void getDeviceProperties(){
+
+	private void getDeviceProperties() {
 		System.out.println("OpenGL version: " + GL11.glGetString(GL11.GL_VERSION) + " bytes");
-		System.out.println("Max Geometry Uniform Blocks: " + GL31.GL_MAX_GEOMETRY_UNIFORM_BLOCKS+ " bytes");
+		System.out.println("Max Geometry Uniform Blocks: " + GL31.GL_MAX_GEOMETRY_UNIFORM_BLOCKS + " bytes");
 		System.out.println("Max Geometry Shader Invocations: " + GL40.GL_MAX_GEOMETRY_SHADER_INVOCATIONS + " bytes");
 		System.out.println("Max Uniform Buffer Bindings: " + GL31.GL_MAX_UNIFORM_BUFFER_BINDINGS + " bytes");
 		System.out.println("Max Uniform Block Size: " + GL31.GL_MAX_UNIFORM_BLOCK_SIZE + " bytes");
-		System.out.println("Max SSBO Block Size: " + GL43.GL_MAX_SHADER_STORAGE_BLOCK_SIZE + " bytes");		
+		System.out.println("Max SSBO Block Size: " + GL43.GL_MAX_SHADER_STORAGE_BLOCK_SIZE + " bytes");
 	}
 
 	public static float getFrameTime() {
@@ -183,8 +173,8 @@ public class CoreEngine {
 	public void clearObjects() {
 		renderingEngine.clearRenderingQueue();
 	}
-	
-	public List<GameObject> getActiveObjects(){
+
+	public List<GameObject> getActiveObjects() {
 		return renderingEngine.getRenderQueue();
 	}
 }

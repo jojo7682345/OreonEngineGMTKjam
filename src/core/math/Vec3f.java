@@ -85,6 +85,11 @@ public class Vec3f {
 		return new Vec3f(this.X + r.getX(), this.Y + r.getY(), this.Z + r.getZ());
 	}
 	
+	public Vec3f add(float x, float y ,float z)
+	{
+		return new Vec3f(this.X + x, this.Y + y, this.Z + z);
+	}
+	
 	public Vec3f add(float r)
 	{
 		return new Vec3f(this.X + r, this.Y + r, this.Z + r);

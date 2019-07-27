@@ -39,7 +39,7 @@ public class Camera {
 	}
 
 	protected Camera() {
-		this(new Vec3f(0, 0, 0), new Vec3f(-1f, 0, 0f), new Vec3f(0, 1f, 0));
+		this(new Vec3f(0, 0, 0), new Vec3f(0f, 0, 1f), new Vec3f(0, 1f, 0));
 		if (Window.is3D) {
 			setProjection(70,Window.getInstance().getWidth(), Window.getInstance().getHeight());
 		} else {
@@ -121,9 +121,9 @@ public class Camera {
 	public void setProjection(float width, float height) {
 		this.width = width;
 		this.height = height;
-
-		float aspectRatio = (float) Window.getInstance().getWidth() / (float) Window.getInstance().getHeight();
-		this.projectionMatrix = new Matrix4f().OrthographicProjection(-aspectRatio, aspectRatio, -1, 1, 0, Constants.ZFAR);
+		
+	
+		this.projectionMatrix = new Matrix4f().Orthographic2D();
 	}
 
 	public Matrix4f getViewMatrix() {

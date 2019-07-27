@@ -24,6 +24,7 @@ public class SceneLoader {
 		Thread thread = new Thread(() -> {
 
 			loadedObjects.add(o);
+			o.onCreate();
 			finished = true;
 		});
 		thread.start();
@@ -44,6 +45,7 @@ public class SceneLoader {
 					object.setLocalTransform(Transform.fromString(data[2]));
 					object.setName(data[3]);
 					loadedObjects.add(object);
+					object.onCreate();
 				}
 
 				reader.close();

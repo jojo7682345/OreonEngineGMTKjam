@@ -10,7 +10,6 @@ public class GameObject extends Node{
 	public GameObject()
 	{
 		components = new HashMap<String, Component>();
-		onCreate();
 	}
 	
 	public synchronized void allocate() {
